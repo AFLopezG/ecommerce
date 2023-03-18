@@ -6,10 +6,14 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.posgrado.ecommerce.entity.User;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
+
+  @Value("${spring.jwt.secret-key}")
+  private String secretKey;
 
   public String generateToken(User user) {
     return JWT.create()
@@ -18,11 +22,11 @@ public class JwtService {
         .withClaim("role", user.getRole().getName())
         .withIssuedAt(new Date())
         .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
-        .sign(Algorithm.HMAC256("myS3creyK3y"));
+        .sign(Algorithm.HMAC256(secretKey));
   }
 
   public DecodedJWT decodeToken(String token) {
-    JWTVerifier verifier = JWT.require(Algorithm.HMAC256("myS3creyK3y")).build();
+    JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
     return verifier.verify(token);
   }
 
